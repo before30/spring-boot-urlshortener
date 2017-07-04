@@ -29,6 +29,10 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-data-redis')
 	compile group: 'com.google.guava', name: 'guava', version: '22.0'
 	compile group: 'com.github.kstyrc', name: 'embedded-redis', version: '0.6'
+	compile group: 'io.lettuce', name: 'lettuce-core', version: '5.0.0.M2'
+	compile group: 'io.projectreactor', name: 'reactor-core', version: '3.0.7.RELEASE'
+
+
 	compileOnly('org.projectlombok:lombok')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

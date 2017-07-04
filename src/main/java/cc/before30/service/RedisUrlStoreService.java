@@ -21,6 +21,7 @@ public class RedisUrlStoreService implements UrlStoreService {
     @Override
     public String findById(String id) {
         ValueOperations<String, String> operations = template.opsForValue();
+
         return operations.get(prefix + id);
     }
 

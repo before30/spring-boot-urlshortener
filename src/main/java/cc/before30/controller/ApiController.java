@@ -1,12 +1,16 @@
 package cc.before30.controller;
 
+import cc.before30.service.LettuceUrlStoreService;
+import cc.before30.service.RedisUrlStoreService;
 import cc.before30.service.UrlStoreService;
+import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
@@ -20,6 +24,9 @@ import java.util.Objects;
 public class ApiController {
     @Autowired
     private UrlStoreService urlStoreService;
+
+    @Autowired
+    private LettuceUrlStoreService lettuceUrlStoreService;
 
     @GetMapping("/list")
     public Map<String, String> list() {
@@ -36,6 +43,26 @@ public class ApiController {
         } else {
             resp.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
+    }
+
+    @GetMapping("/v2/{id}")
+    public DeferredResult<Void> redirectToUrl2(@PathVariable("id") String id, HttpServletResponse resp) throws Exception {
+
+        DeferredResult<Void> deferredResult = new DeferredResult<>();
+        RedisFuture<String> result = lettuceUrlStoreService.findOne(id);
+        result.thenAcceptAsync(url ->{
+            if (Objects.nonNull(url)) {
+//                log.info("id : {}, url : {}", id, url);
+                resp.addHeader(HttpHeaders.LOCATION, url);
+                resp.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+                deferredResult.setResult(null);
+            } else {
+
+//                resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            }
+        });
+
+        return deferredResult;
     }
 
 }
